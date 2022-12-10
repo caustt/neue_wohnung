@@ -17,14 +17,18 @@ module Scraper
 
       return [] if second_list.blank?
 
-      second_list.css(".tab-pane.active .list_item").map do |listing|
-        parse(listing)
-      end
+      second_list.css(".tab-pane.active .list_item")
+      .select { |listing| senior?(listing) }
+      .map {|listing| parse(listing) }
     end
 
     private
 
     attr_accessor :http_client
+
+    def senior?(listing)
+      listing.text.exclude?("Senior")
+    end
 
     def parse(listing)
       Apartment.new(
@@ -33,7 +37,8 @@ module Scraper
           address: listing.css(".list_item-location").text,
           url: url(listing),
           rooms_number: rooms_number(listing),
-          wbs: listing.at(".list_item-title a").text.include?("WBS")
+          wbs: listing.at(".list_item-title a").text.include?("WBS"),
+          warm_rent: warm_rent(listing)
         }
       )
     end
@@ -45,6 +50,11 @@ module Scraper
     def rooms_number(listing)
       Integer(
         listing.css(".list_item-details").text.match(/.*Zimmer: (\d+)/)[1]
+      )
+    end
+    def warm_rent(listing)
+      Integer(
+        listing.css(".list_item-details").text.match(/.*Warmmiete: (\d+)/)[1]
       )
     end
   end

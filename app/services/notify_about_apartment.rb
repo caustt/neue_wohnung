@@ -13,6 +13,7 @@ class NotifyAboutApartment
 
         Address: #{apartment.properties.fetch('address', '?')}
         Rooms: #{apartment.properties.fetch('rooms_number', '?')}
+        Warmmiete: #{apartment.properties.fetch('warm_rent', '?')}
         WBS: #{format_wbs_status(apartment)}
 
         #{apartment.properties.fetch('url', 'no link available')}
