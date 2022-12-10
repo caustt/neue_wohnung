@@ -9,7 +9,7 @@ RSpec.describe Scraper::Gesobau do
     service = Scraper::Gesobau.new(http_client: http_client)
     result = service.call
 
-    expect(result.size).to eq 9
+    expect(result.size).to eq 2
   end
 
   it "returns Apartment instances" do
@@ -26,7 +26,7 @@ RSpec.describe Scraper::Gesobau do
     result = service.call
 
     expect(result.first.properties.fetch("address"))
-      .to eq "Gadebuscher Straße 25A / 12619 Berlin"
+      .to eq "Lion-Feuchtwanger-Straße 19B / 12619 Berlin"
   end
 
   it "gets link to the full offer" do
@@ -35,7 +35,7 @@ RSpec.describe Scraper::Gesobau do
     result = service.call
 
     expect(result.first.properties.fetch("url"))
-      .to eq "https://www.gesobau.de/wohnung/gadebuscher-strasse-1zi-10-03239-1221-g.html"
+      .to eq "https://www.gesobau.de/wohnung/lion-feuchtwanger-strasse-2zi-10-03239-1057-g.html"
   end
 
   it "assigns external identifier" do
@@ -43,7 +43,7 @@ RSpec.describe Scraper::Gesobau do
     service = Scraper::Gesobau.new(http_client: http_client)
     result = service.call
 
-    expect(result.first.external_id).to eq "gesobau-https://www.gesobau.de/wohnung/gadebuscher-strasse-1zi-10-03239-1221-g.html"
+    expect(result.first.external_id).to eq "gesobau-https://www.gesobau.de/wohnung/lion-feuchtwanger-strasse-2zi-10-03239-1057-g.html"
   end
 
   it "gets the number of rooms" do
@@ -52,7 +52,7 @@ RSpec.describe Scraper::Gesobau do
     result = service.call
 
     expect(result.first.properties.fetch("rooms_number"))
-      .to eq 1
+      .to eq 2
   end
 
   it "handles the loading error on Gesobau side" do

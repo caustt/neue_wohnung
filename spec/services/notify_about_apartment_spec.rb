@@ -31,6 +31,7 @@ RSpec.describe NotifyAboutApartment do
 
           Address: Richard-Münch-Str. 42, 13591 Berlin/Staaken
           Rooms: 4
+          Warmmiete: ?
           WBS: not required
 
           https://www.gewobag.de/fuer-mieter-und-mietinteressenten/mietangebote/7100-74806-0305-0076/
@@ -63,6 +64,7 @@ RSpec.describe NotifyAboutApartment do
 
           Address: ?
           Rooms: ?
+          Warmmiete: ?
           WBS: required
 
           no link available
@@ -95,6 +97,7 @@ RSpec.describe NotifyAboutApartment do
 
           Address: Richard-Münch-Str. 42, 13591 Berlin/Staaken
           Rooms: ?
+          Warmmiete: ?
           WBS: ?
 
           no link available
