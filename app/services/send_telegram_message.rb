@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
-require "telegram/bot"
-
 class SendTelegramMessage
+  API_URL = "https://api.telegram.org"
   def call(chat_id, text)
-    client = Telegram::Bot::Client.new(Rails.application.config.telegram_token)
-    client.api.send_message(
-      chat_id: chat_id,
-      text: text
-    )
+    params = {chat_id: chat_id, text: text}
+    Typhoeus.post("#{API_URL}/bot#{Rails.application.config.telegram_token}/sendMessage", params: params)
   end
 end

@@ -7,12 +7,13 @@ module Scraper
     LIST_URL = "#{BASE_URL}/Wohnungssuche/Wohnungssuche.php?form=stadtundland-expose-search-1.form&sp%3AroomsFrom%5B%5D=&sp%3AroomsTo%5B%5D=&sp%3ArentPriceFrom%5B%5D=&sp%3ArentPriceTo%5B%5D=&sp%3AareaFrom%5B%5D=&sp%3AareaTo%5B%5D=&sp%3Afeature%5B%5D=__last__&action=submit".freeze
     # rubocop:enable Layout/LineLength
 
-    def initialize(http_client: HTTParty)
-      self.http_client = http_client
+    def get_requests()
+      self.request = Typhoeus::Request.new(LIST_URL)
     end
 
     def call
-      page = Nokogiri::HTML(http_client.get(LIST_URL).body)
+      raise StandardError.new request.response.return_code unless request.response.success?
+      page = Nokogiri::HTML(request.response.body)
       page
         .css(".SP-TeaserList__item")
         .select { |listing| apartment?(listing) }
@@ -21,7 +22,7 @@ module Scraper
 
     private
 
-    attr_accessor :http_client
+    attr_accessor :request
 
     def apartment?(listing)
       listing.text.exclude?("Objekt-Typ:Garage") && listing.text.exclude?("Objekt-Typ:Parkplatz")

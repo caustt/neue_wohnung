@@ -4,18 +4,19 @@ module Scraper
   class WbgHub
     URL = "https://www.wbg-hub.de/wohnen/wohnungsangebote"
 
-    def initialize(http_client: HTTParty)
-      self.http_client = http_client
+    def get_requests()
+      self.request = Typhoeus::Request.new(URL)
     end
 
     def call
-      page = Nokogiri::HTML(http_client.get(URL).body)
+      raise StandardError.new request.response.return_code unless request.response.success?
+      page = Nokogiri::HTML(request.response.body)
       page.css(".immo-flexbox").map { |listing| parse(listing) }
     end
 
     private
 
-    attr_accessor :http_client
+    attr_accessor :request
 
     def parse(listing)
       Apartment.new(

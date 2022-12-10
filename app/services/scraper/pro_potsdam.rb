@@ -8,17 +8,18 @@ module Scraper
       # rubocop:enable Layout/LineLength
       AUTH_URL = "https://propotsdam-kundenportal.easysquare.com/propotsdam-kundenportal/api5/authenticate?api=6.153&sap-language=de"
       
-  
-      def initialize(http_client: HTTParty)
-        self.http_client = http_client
+      def get_requests()
+        body = { "sap-ffield_b64": "dXNlcj1ERU1PJnBhc3N3b3JkPXByb21vczE3" }
+        self.request = Typhoeus::Request.new(AUTH_URL, method: :post, body: body)
       end
   
       def call
-        params = { body: { "sap-ffield_b64": "dXNlcj1ERU1PJnBhc3N3b3JkPXByb21vczE3" }}
-        authentication_response = http_client.post(AUTH_URL, params)
+        raise StandardError.new request.response.return_code unless request.response.success?
+        authentication_response = request.response
         cookie_hash = HTTParty::CookieHash.new
-        authentication_response.get_fields('Set-Cookie').each { |c| cookie_hash.add_cookies(c) }
-        page = Nokogiri::XML(http_client.get(LIST_URL, {headers: {'Cookie' => cookie_hash.to_cookie_string }}).body)
+        authentication_response.headers_hash['set-cookie'].each { |c| cookie_hash.add_cookies(c) }
+        page = Nokogiri::XML(Typhoeus.get(LIST_URL, :headers =>  {'Cookie' => cookie_hash.to_cookie_string }).body)
+
         page
           .css("head")
           .select { |listing| apartment?(listing) }
@@ -27,7 +28,7 @@ module Scraper
   
       private
   
-      attr_accessor :http_client
+      attr_accessor :request
   
       def apartment?(listing)
         listing.text.exclude?("Stellplatz") && listing.text.exclude?("Gewerbe")
@@ -46,7 +47,7 @@ module Scraper
       end
 
       def id(listing)
-        listing.css("id").text
+        listing.css("originalId").text
       end
   
       def url()

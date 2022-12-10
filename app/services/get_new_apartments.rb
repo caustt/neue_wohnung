@@ -18,9 +18,12 @@ class GetNewApartments
         Apartment.find_by(external_id: apartment.external_id).present?
       end
       .each(&:save!)
+    send(new_apartments)
+  end
 
+  def send(apartments)
     Receiver.all.each do |receiver|
-      new_apartments.select do |apartment|
+      apartments.select do |apartment|
         matches_preferences?(receiver, apartment)
       end.each do |apartment|
         notify_about_apartment.call(receiver, apartment)

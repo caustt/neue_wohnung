@@ -4,12 +4,13 @@ module Scraper
   class Vbveg
     URL = "https://www.vbveg.de/wohnungsangebote.html"
 
-    def initialize(http_client: HTTParty)
-      self.http_client = http_client
+    def get_requests()
+      self.request = Typhoeus::Request.new(URL)
     end
 
     def call
-      page = Nokogiri::HTML(http_client.get(URL).body)
+      raise StandardError.new request.response.return_code unless request.response.success?
+      page = Nokogiri::HTML(request.response.body)
       return [] if page.text.include?("Derzeit stehen keine Wohnungsangebote zur Verfügung")
 
       page.css("#article-127 .ce_text.block").map { |listing| parse(listing) }
@@ -17,7 +18,7 @@ module Scraper
 
     private
 
-    attr_accessor :http_client
+    attr_accessor :request
 
     def parse(listing)
       rooms_number, address, wbs = parse_title(listing)

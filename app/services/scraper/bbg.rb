@@ -4,18 +4,20 @@ module Scraper
   class Bbg
     URL = "https://bbg-eg.de/angebote/wohnungen-und-gewerbe/"
 
-    def initialize(http_client: HTTParty)
-      self.http_client = http_client
+    def get_requests()
+      self.request = Typhoeus::Request.new(URL)
     end
 
     def call
-      page = Nokogiri::HTML(http_client.get(URL).body)
+      raise StandardError.new request.response.return_code unless request.response.success?
+      page = Nokogiri::HTML(request.response.body)
       page.css("#std-content table.avia-table tr:not(.avia-heading-row)").map { |listing| parse(listing) }
     end
 
     private
 
-    attr_accessor :http_client
+    
+    attr_accessor :request
 
     def parse(listing)
       properties = {

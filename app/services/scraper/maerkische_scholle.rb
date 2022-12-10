@@ -2,25 +2,22 @@
 
 module Scraper
   class MaerkischeScholle
-    class SkipSSLVerificationClient
-      include HTTParty
-      default_options.update(verify: false)
-    end
 
     URL = "https://www.maerkische-scholle.de/wohnungsangebote.html"
 
-    def initialize(http_client: SkipSSLVerificationClient)
-      self.http_client = http_client
+    def get_requests()
+      self.request = Typhoeus::Request.new(URL)
     end
 
     def call
-      page = Nokogiri::HTML(http_client.get(URL).body)
+      raise StandardError.new request.response.return_code unless request.response.success?
+      page = Nokogiri::HTML(request.response.body)
       page.css("#main .ce_text").drop(1).map { |listing| parse(listing) }
     end
 
     private
 
-    attr_accessor :http_client
+    attr_accessor :request
 
     def parse(listing)
       Apartment.new(

@@ -7,12 +7,13 @@ module Scraper
     LIST_URL = "#{BASE_URL}/mieten/wohnungssuche.html?tx_kesearch_pi1%5Bsword%5D=&tx_kesearch_pi1%5Bzimmer%5D=&tx_kesearch_pi1%5BflaecheMin%5D=&tx_kesearch_pi1%5BmieteMax%5D=&tx_kesearch_pi1%5Bpage%5D=1&tx_kesearch_pi1%5BresetFilters%5D=0&tx_kesearch_pi1%5BsortByField%5D=&tx_kesearch_pi1%5BsortByDir%5D=".freeze
     # rubocop:enable Layout/LineLength
 
-    def initialize(http_client: HTTParty)
-      self.http_client = http_client
+    def get_requests()
+      self.request = Typhoeus::Request.new(LIST_URL)
     end
 
     def call
-      page = Nokogiri::HTML(http_client.get(LIST_URL).body)
+      raise StandardError.new request.response.return_code unless request.response.success?
+      page = Nokogiri::HTML(request.response.body)
       second_list = page.css(".tx-openimmo.list")[1]
 
       return [] if second_list.blank?
@@ -24,7 +25,7 @@ module Scraper
 
     private
 
-    attr_accessor :http_client
+    attr_accessor :request
 
     def senior?(listing)
       listing.text.exclude?("Senior")

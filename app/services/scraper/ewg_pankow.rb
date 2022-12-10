@@ -4,12 +4,13 @@ module Scraper
   class EwgPankow
     URL = "https://www.ewg-pankow.de/wohnen/"
 
-    def initialize(http_client: HTTParty)
-      self.http_client = http_client
+    def get_requests()
+      self.request = Typhoeus::Request.new(URL)
     end
 
     def call
-      page = Nokogiri::HTML(http_client.get(URL).body)
+      raise StandardError.new request.response.return_code unless request.response.success?
+      page = Nokogiri::HTML(request.response.body)
       container = page.css(".elementor-posts-container").first
 
       return [] if container.text.include?("Aktuell ist leider kein Wohnungsangebot verfügbar")
@@ -19,7 +20,7 @@ module Scraper
 
     private
 
-    attr_accessor :http_client
+    attr_accessor :request
 
     def parse(listing)
       Apartment.new(

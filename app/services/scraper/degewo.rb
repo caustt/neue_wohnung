@@ -7,10 +7,6 @@ module Scraper
     LIST_URL = "#{BASE_URL}/de/search.json?utf8=%E2%9C%93&property_type_id=1&categories%5B%5D=1&wbs_required=0&order=rent_total_without_vat_asc".freeze
     # rubocop:enable Layout/LineLength
 
-    def initialize(http_client: HTTParty)
-      self.http_client = http_client
-    end
-
     def call
       follow(LIST_URL).map do |listing|
         Apartment.new(
@@ -27,10 +23,12 @@ module Scraper
 
     private
 
-    attr_accessor :http_client
+    attr_accessor :request
 
     def follow(url)
-      json = JSON.parse(http_client.get(url).body)
+      response = Typhoeus.get(url)
+      raise StandardError.new response.return_code unless response.success?
+      json = JSON.parse(response.body)
       head = json.fetch("immos")
       next_page_url = json.fetch("pagination").fetch("next_page", nil)
 
@@ -40,6 +38,8 @@ module Scraper
         head
       end
     end
+
+ 
 
     def url(listing)
       "#{BASE_URL}#{listing.fetch('property_path')}"

@@ -5,12 +5,13 @@ module Scraper
     BASE_URL = "https://www.wbg-friedrichshain-eg.de"
     LIST_URL = "#{BASE_URL}/wohnungsangebote".freeze
 
-    def initialize(http_client: HTTParty)
-      self.http_client = http_client
+    def get_requests()
+      self.request = Typhoeus::Request.new(LIST_URL)
     end
 
     def call
-      page = Nokogiri::HTML(http_client.get(LIST_URL).body)
+      raise StandardError.new request.response.return_code unless request.response.success?
+      page = Nokogiri::HTML(request.response.body)
       page
         .css(".jea_item")
         .reject { |listing| listing.text.include?("Gewerbefläche") }
@@ -19,7 +20,7 @@ module Scraper
 
     private
 
-    attr_accessor :http_client
+    attr_accessor :request
 
     def parse(listing)
       Apartment.new(

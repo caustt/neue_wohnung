@@ -30,6 +30,11 @@ class ScrapeAll
   end
 
   def call
+   hydra = Typhoeus::Hydra.new
+    scrapers.map do |scraper|
+     hydra.queue(scraper.get_requests) if defined? scraper.get_requests
+    end
+    hydra.run
     scrapers.map do |scraper|
       scraper.call
     rescue Errno::ECONNREFUSED, Errno::ECONNRESET, OpenSSL::SSL::SSLError,

@@ -7,12 +7,13 @@ module Scraper
     LIST_URL = "#{BASE_URL}/?type=999&tx_howsite_json_list[action]=immoList&tx_howsite_json_list[wbs]=wbs-not-necessary&tx_howsite_json_list[limit]=100".freeze
     # rubocop:enable Layout/LineLength
 
-    def initialize(http_client: HTTParty)
-      self.http_client = http_client
+    def get_requests()
+      self.request = Typhoeus::Request.new(LIST_URL)
     end
 
     def call
-      json = JSON.parse(http_client.get(LIST_URL).body)
+      raise StandardError.new request.response.return_code unless request.response.success?
+      json = JSON.parse(request.response.body)
       json.fetch("immoobjects").map do |listing|
         Apartment.new(
           external_id: "howoge-#{listing.fetch('title')}-#{listing.fetch('rent')}",
@@ -28,6 +29,6 @@ module Scraper
 
     private
 
-    attr_accessor :http_client
+    attr_accessor :request
   end
 end

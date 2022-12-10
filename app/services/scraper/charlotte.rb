@@ -4,12 +4,13 @@ module Scraper
   class Charlotte
     URL = "https://charlotte1907.de/wohnungsangebote/woechentliche-angebote"
 
-    def initialize(http_client: HTTParty)
-      self.http_client = http_client
+    def get_requests()
+      self.request = Typhoeus::Request.new(URL)
     end
 
     def call
-      page = Nokogiri::HTML(http_client.get(URL).body)
+      raise StandardError.new request.response.return_code unless request.response.success?
+      page = Nokogiri::HTML(request.response.body)
       page
         .css(".apartment-lists > .image-block-content")
         .reject { |listing| only_for_members?(listing) }
@@ -18,7 +19,8 @@ module Scraper
 
     private
 
-    attr_accessor :http_client
+     
+    attr_accessor :request
 
     def only_for_members?(listing)
       listing.text.include?("Nur für Mitglieder")
