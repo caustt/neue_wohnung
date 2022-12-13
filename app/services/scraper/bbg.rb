@@ -5,7 +5,7 @@ module Scraper
     URL = "https://bbg-eg.de/angebote/wohnungen-und-gewerbe/"
 
     def get_requests()
-      self.request = Typhoeus::Request.new(URL)
+      self.request = Typhoeus::Request.new(URL, :followlocation => true)
     end
 
     def call
@@ -16,7 +16,6 @@ module Scraper
 
     private
 
-    
     attr_accessor :request
 
     def parse(listing)

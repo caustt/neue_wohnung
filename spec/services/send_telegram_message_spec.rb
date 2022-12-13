@@ -9,6 +9,6 @@ RSpec.describe SendTelegramMessage do
       "This is a test message"
     )
 
-    expect(result.fetch("ok")).to eq true
+    expect(result.success?).to eq true
   end
 end
