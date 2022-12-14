@@ -4,7 +4,6 @@ class ScrapeAll
   def initialize(
     scrapers: [
       Scraper::Bbg.new,
-      Scraper::ProPotsdam.new,
       Scraper::Charlotte.new,
       Scraper::Degewo.new,
       Scraper::Dpf.new,
@@ -21,7 +20,9 @@ class ScrapeAll
       Scraper::WbgFriedrichshain.new,
       Scraper::WbgHub.new,
       Scraper::WbgZentrum.new,
-      Scraper::Wbm.new
+      Scraper::Wbm.new,
+      Scraper::ProPotsdam.new,
+      Scraper::KarlMarx.new
     ],
     bugsnag_client: Bugsnag
   )
